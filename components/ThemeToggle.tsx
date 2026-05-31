@@ -24,30 +24,30 @@ export function ThemeToggle() {
         setDark(nextDark);
     }
 
-
     return (
         <button
             type="button"
             onClick={toggleTheme}
             aria-label="Téma váltása"
-            className="inline-flex h-8 items-center gap-1 rounded-full border border-border bg-muted p-0.5 shadow-sm transition-colors hover:bg-accent"
+            className="relative inline-flex h-8 items-center gap-1 rounded-full border border-border bg-muted p-0.5 shadow-sm hover:bg-accent"
         >
             <span
-                className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${!dark
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground"
+                className={`absolute left-0.5 top-1/2 h-7 w-7 -translate-y-1/2 rounded-full bg-primary shadow-sm transition-transform duration-200 ease-out ${dark ? "translate-x-8" : "translate-x-0"
                     }`}
-            >
-                <Sun className="h-4 w-4" />
+            />
+
+            <span className="relative z-10 flex h-7 w-7 items-center justify-center">
+                <Sun
+                    className={`h-4 w-4 ${!dark ? "text-primary-foreground" : "text-muted-foreground"
+                        }`}
+                />
             </span>
 
-            <span
-                className={`flex h-7 w-7 items-center justify-center rounded-full transition-colors ${dark
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground"
-                    }`}
-            >
-                <Moon className="h-4 w-4" />
+            <span className="relative z-10 flex h-7 w-7 items-center justify-center">
+                <Moon
+                    className={`h-4 w-4 ${dark ? "text-primary-foreground" : "text-muted-foreground"
+                        }`}
+                />
             </span>
         </button>
     );

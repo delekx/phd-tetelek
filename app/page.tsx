@@ -22,6 +22,8 @@ export default function Home() {
 
   const activeTopic = topics.find((topic) => topic.id === activeTopicId);
 
+  const mobileMenuScrollRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     let ticking = false;
 
@@ -93,6 +95,28 @@ export default function Home() {
     };
   }, [mobileMenuOpen]);
 
+  useEffect(() => {
+    if (!mobileMenuOpen || !activeTopicId) return;
+
+    requestAnimationFrame(() => {
+      const container = mobileMenuScrollRef.current;
+      const activeButton = container?.querySelector<HTMLButtonElement>(
+        `[data-topic-id="${activeTopicId}"]`
+      );
+
+      if (!container || !activeButton) return;
+
+      const containerRect = container.getBoundingClientRect();
+      const buttonRect = activeButton.getBoundingClientRect();
+
+      const targetOffset = container.clientHeight / 3;
+      const currentButtonTop = buttonRect.top - containerRect.top;
+
+      container.scrollTop =
+        container.scrollTop + currentButtonTop - targetOffset;
+    });
+  }, [mobileMenuOpen, activeTopicId]);
+
   function scrollToTopic(id: string) {
     const element = document.getElementById(id);
 
@@ -152,12 +176,12 @@ export default function Home() {
                   <button
                     key={topic.id}
                     type="button"
+                    data-topic-id={topic.id}
                     onClick={() => handleNavClick(topic.id)}
-                    className={`block w-full rounded-md px-2 py-1.5 text-left leading-snug transition ${
-                      activeTopicId === topic.id
-                        ? "bg-primary text-primary-foreground"
-                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                    }`}
+                    className={`block w-full rounded-md px-2 py-1.5 text-left leading-snug transition ${activeTopicId === topic.id
+                      ? "bg-primary text-primary-foreground"
+                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                      }`}
                   >
                     {topic.number}. {topic.title}
                   </button>
@@ -182,14 +206,12 @@ export default function Home() {
             className="flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded-full hover:bg-muted"
           >
             <span
-              className={`h-0.5 w-5 rounded-full bg-foreground transition-transform duration-200 ${
-                mobileMenuOpen ? "translate-y-1 rotate-45" : ""
-              }`}
+              className={`h-0.5 w-5 rounded-full bg-foreground transition-transform duration-200 ${mobileMenuOpen ? "translate-y-1 rotate-45" : ""
+                }`}
             />
             <span
-              className={`h-0.5 w-5 rounded-full bg-foreground transition-transform duration-200 ${
-                mobileMenuOpen ? "-translate-y-1 -rotate-45" : ""
-              }`}
+              className={`h-0.5 w-5 rounded-full bg-foreground transition-transform duration-200 ${mobileMenuOpen ? "-translate-y-1 -rotate-45" : ""
+                }`}
             />
           </button>
 
@@ -218,16 +240,29 @@ export default function Home() {
       {mobileMenuOpen ? (
         <>
           <div
-            className="fixed inset-x-0 bottom-0 z-30 bg-background/45 backdrop-blur-[2px] md:hidden"
+            className={`fixed inset-x-0 bottom-0 z-30 bg-background/45 backdrop-blur-[2px] transition-opacity duration-150 md:hidden ${mobileMenuOpen
+              ? "pointer-events-auto opacity-100"
+              : "pointer-events-none opacity-0"
+              }`}
             style={{ top: MOBILE_HEADER_HEIGHT }}
             onClick={() => setMobileMenuOpen(false)}
           />
 
           <div
-            className="fixed inset-x-0 z-40 max-h-[72vh] overflow-auto rounded-b-2xl border-b border-border bg-background px-4 pb-8 pt-0 shadow-xl md:hidden"
+            className={`fixed inset-x-0 z-40 max-h-[72vh] overflow-hidden rounded-b-4xl border-b border-border bg-background shadow-xl origin-top transition-all duration-300 ease-out md:hidden ${mobileMenuOpen
+              ? "pointer-events-auto translate-y-0 scale-y-100 opacity-100"
+              : "pointer-events-none -translate-y-6 scale-y-95 opacity-0"
+              }`}
             style={{ top: MOBILE_HEADER_HEIGHT }}
           >
-            <TopicNavList />
+            <div
+              ref={mobileMenuScrollRef}
+              className="max-h-[72vh] overflow-auto px-4 pb-8 pt-0"
+            >
+              <TopicNavList />
+            </div>
+
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 h-12 rounded-b-4xl bg-gradient-to-t from-background to-transparent" />
           </div>
         </>
       ) : null}

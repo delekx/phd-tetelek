@@ -1,6 +1,7 @@
 "use client";
 
 import type { Topic, TopicBlock } from "@/lib/types";
+import { BlockMath } from "react-katex";
 import {
   AccordionContent,
   AccordionItem,
@@ -61,9 +62,9 @@ function TopicBlockView({ block }: { block: TopicBlock }) {
           </h4>
         ) : null}
 
-        <p className="font-mono text-sm font-semibold text-primary">
-          {block.formula}
-        </p>
+        <div className="overflow-x-auto text-primary">
+          <BlockMath math={block.formula} />
+        </div>
 
         {block.explanation ? (
           <p className="mt-1 text-sm leading-relaxed text-card-foreground">
